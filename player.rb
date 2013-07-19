@@ -2,6 +2,7 @@ require_relative 'mover'
 require_relative 'bomb'
 class Player
   def initialize(window)
+    @window = window
     @sprite = Gosu::Image.new(window, "images/stickfig.png", false)
     @pos = Mover.new 
   end
@@ -19,13 +20,12 @@ class Player
     end
   end
 
-  def make_bomb(window, xdir, ydir, fuse)
-    Bomb.new(window, xdir, ydir, @pos.x, @pos.y, fuse)
+  def make_bomb(xdir, ydir, fuse)
+    Bomb.new(@window, xdir, ydir, @pos.x, @pos.y, fuse)
   end
 
   def move
     @pos.move
-    
     @pos.xvel *= 0.95
     @pos.yvel *= 0.95
     @pos.y = 320 if @pos.y > 320 #Floor is y=320

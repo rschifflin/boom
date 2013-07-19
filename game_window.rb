@@ -12,35 +12,32 @@ class GameWindow < Gosu::Window
   end
   
   def initialize
-    super 640, 480, false
+    @input = Hash.new(:up)
+    @last_input = Hash.new(:up)
+    super 1024, 768, false
     self.caption = "Gosu Tutorial"
     @players = []
     @bombs = []
   end
 
+  def button_down(id) 
+    close if id == Gosu::KbEscape
+    @last_input[id] = @input[id]
+    @input[id] = :down
+  end
+
+  def button_up(id)
+    @last_input[id] = @input[id]
+    @input[id] = :up
+  end
+  
   def update
-    input= {:x => :none,
-            :y => :none,
-            :btn1 => false,
-            :btn2 => false,
-            :btn3 => false
-            }
-
-    input[:x] = :left if button_down? Gosu::GpLeft
-    input[:x] = :right if button_down? Gosu::GpRight
-    input[:y] = :up if button_down? Gosu::GpUp
-    input[:y] = :down if button_down? Gosu::GpDown
-    input[:btn1] = true if button_down? Gosu::GpButton1
-    input[:btn2] = true if button_down? Gosu::GpButton2
-    input[:btn3] = true if button_down? Gosu::GpButton3
-
     @players.each do |p|
-      p.accel input[:x]
-      p.accel :up if input[:btn1]
+      p.accel :left if @input[Gosu::Gp0Left] == :down
+      p.accel :right if @input[Gosu::Gp0Right] == :down
+      p.accel :up if @input[Gosu::Gp0Button0] == :down
       p.accel :down #Gravity
-      
-      @bombs << p.make_bomb(self, input[:x], input[:y], 30) if input[:btn2]
-      @bombs << p.make_bomb(self, input[:x], input[:y], 60) if input[:btn3]
+        
       p.move 
     end
 
@@ -55,9 +52,4 @@ class GameWindow < Gosu::Window
     @bombs.each { |b| b.draw } 
   end
 
-  def button_down(id)
-    if id == Gosu::KbEscape
-      close
-    end
-  end
 end
