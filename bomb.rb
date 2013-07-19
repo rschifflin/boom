@@ -1,13 +1,24 @@
 require 'gosu'
 
 class Bomb
+  attr_reader :fuse
   def initialize(window, xdir, ydir, xpos, ypos, fuse)
     @sprite = Gosu::Image.new(window, "images/bomb.png", false)
     @fuse = fuse
     @pos = Mover.new(xpos, ypos)
-   
-    xdir == :left ? @pos.xvel = -5 : @pos.xvel = 5
-    ydir == :up ? @pos.yvel = -5 : @pos.yvel = 5 
+  
+    case xdir
+    when :left then @pos.xvel = -5
+    when :right then @pos.xvel = 5
+    when :none then @pos.xvel = 0
+    end
+
+
+    case ydir
+    when :up then @pos.yvel = -5
+    when :down then @pos.yvel = 5
+    when :none then @pos.yvel = 0
+    end
   end
 
   def move
