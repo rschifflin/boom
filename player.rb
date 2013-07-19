@@ -1,5 +1,5 @@
 require_relative 'mover'
-
+require_relative 'bomb'
 class Player
   def initialize(window)
     @sprite = Gosu::Image.new(window, "images/stickfig.png", false)
@@ -17,6 +17,10 @@ class Player
     when :down
       @pos.yvel += 1 unless @pos.yvel >= 5
     end
+  end
+
+  def make_bomb(window, xdir, ydir, fuse)
+    Bomb.new(window, xdir, ydir, @pos.x, @pos.y, fuse)
   end
 
   def move
