@@ -7,7 +7,7 @@ class Player < GameObject
 
   def initialize
     @pos = Position.new
-    @sprite = Sprite.new()
+    @sprite = Sprite.new
     
     @game_input = {
       :left   => { is: false, was: false },
@@ -52,6 +52,15 @@ class Player < GameObject
       @pos.step
       @pos.move
     end
+  end
+ 
+  def collision_box
+    { x: pos.x, y: pos.y } 
+  end
+
+  def collision other
+    dx = collision_box[:x] - other.collision_box[:x] 
+    puts "Colliding!" if dx > -50 && dx < 50
   end
 
   def draw

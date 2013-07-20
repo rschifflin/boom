@@ -13,6 +13,6 @@ p2.pos.teleport(350,50)
 p2.bind_input(:p2left, :left)
 p2.bind_input(:p2right, :right)
 
-window.add_object(p1, {input: true, visible: true})
-window.add_object(p2, {input: true, visible: true})
+window.add_object(p1, {input: true, visible: true, collision: true})
+window.add_object(p2, {input: true, visible: true, collision: true})
 window.show

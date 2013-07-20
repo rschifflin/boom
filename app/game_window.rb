@@ -65,6 +65,7 @@ class GameWindow < Gosu::Window
 
   def update
     @all_objects.each_value { |val| val[:object].update } 
+    collision
   end
 
   def button_down id

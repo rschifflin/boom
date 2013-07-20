@@ -28,6 +28,11 @@ describe Player do
       p.game_input[:right][:is] = true
       expect{ p.update }.to change{ p.pos.x }.by(5)
     end
+  end
 
+  context "#Collision" do
+    context "When colliding with a bomb" do
+
+    end
   end
 end
