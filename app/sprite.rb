@@ -10,10 +10,7 @@ class Sprite
   end
 
   def draw(x, y, z)
-    anim = current_anim
-    index = current_anim[:index]
-    image = current_anim[:images][index]
-    image.draw(x, y, z) 
+    current_image.draw(x, y, z) 
   end
 
   def add_anim anim_hash
@@ -36,6 +33,12 @@ class Sprite
     @anims[@current_key]
   end
 
+  def current_image
+    anim = current_anim
+    index = anim[:index]
+    image = anim[:images][index]
+  end
+  
   def update
     unless @anims[@current_key].nil? || @anims[@current_key][:paused]
       update_counter

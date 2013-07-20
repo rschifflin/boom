@@ -22,12 +22,14 @@ class Position
   def move
     @x = @dx;
     @y = @dy;
-    
-    @xvel -= @xfrict
-    @xvel = 0 if @xvel < 0
+     
+    @xvel < 0 ? sign = -1 : sign = 1 
+    @xvel -= sign*@xfrict
+    @xvel = 0 if (@xvel < 0 && sign == 1) || (@xvel > 0 && sign == -1)
 
-    @yvel -= @yfrict
-    @yvel = 0 if @yvel < 0
+    @yvel < 0 ? sign = -1 : sign = 1 
+    @yvel -= sign*@yfrict
+    @yvel = 0 if (@yvel < 0 && sign == 1) || (@yvel > 0 && sign == -1)
   end
 
   def teleport(x, y)

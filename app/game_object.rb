@@ -5,7 +5,7 @@ class GameObject
   #INSTANCE MEMBERS AND METHODS
   attr_reader :id
   
-  def initialize
+  def initialize(*args)
     @id = @@id_count
     @@id_count += 1
   end
@@ -18,7 +18,7 @@ class GameObject
 
   end
 
-  def collision
+  def collision other
 
   end
 end

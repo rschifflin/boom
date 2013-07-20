@@ -1,6 +1,7 @@
 require_relative 'position'
 require_relative 'game_object'
 require_relative 'window_player_input_adapter'
+
 class Player < GameObject
   attr_reader :pos, :binds, :game_input
   attr_accessor :input_adapter
@@ -52,6 +53,16 @@ class Player < GameObject
       @pos.step
       @pos.move
     end
+
+    if @game_input[:atk1][:is] == true && @game_input[:atk1][:was] == false
+      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, :left, 30), {visible: true})
+    end
+
+    if @game_input[:atk2][:is] == true && @game_input[:atk2][:was] == false 
+      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, :left, 60), {visible: true})
+    end
+    
+    @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
   end
  
   def collision_box
