@@ -22,19 +22,15 @@ class Player < GameObject
       }
 
     anim_hash = {
-      :name => :stand,
+      :name => :walk,
       :loop => true,
-      :speed => 10,
+      :speed => 5,
       :index => 0,
       :paused => false,
-      :images => [ #:some, :random, :images ]
-        Gosu::Image.new(GameWindow.instance, "images/stickfig.png", false),
-        Gosu::Image.new(GameWindow.instance, "images/bomb.png", false),
-        Gosu::Image.new(GameWindow.instance, "images/arm.png", false)
-        ] 
-      }    
+      :images => Gosu::Image.load_tiles(GameWindow.instance, "images/blockfig_walk.png", 64, 96, false)
+      }
     @sprite.add_anim anim_hash
-    @sprite.set_anim :stand
+    @sprite.set_anim :walk
     @pos.teleport(50,50)
     super
   end

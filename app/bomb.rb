@@ -41,7 +41,6 @@ class Bomb < GameObject
   end
 
   def update
-    puts "Bomb updating!"
     if @fuse <= 0
       GameWindow.instance.remove_object_by_id(@id)
       explosion = Explosion.new(
