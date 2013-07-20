@@ -6,6 +6,7 @@ describe Player do
 
   before do
     w.add_object(p, {input: true})
+    w.update
     p.input_adapter = WindowPlayerInputAdapter.new(w,p)
     p.bind_input(:p1left, :left)
     p.bind_input(:p1right, :right)

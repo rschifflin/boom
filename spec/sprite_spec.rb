@@ -74,6 +74,6 @@ describe Sprite do
   it "draws the current index" do
     spr.set_anim :anim1
     expect(spr.current_anim[:images][spr.current_anim[:index]]).to receive(:draw)
-    spr.draw(0,0)
+    spr.draw(0,0,0)
   end
 end

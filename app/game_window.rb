@@ -133,7 +133,7 @@ class GameWindow < Gosu::Window
 
   def remove_objects_from_queue
     @remove_queue.each do |id|
-      unless @all_objects[id].nil?
+      unless @all_objects[id].nil? 
         @all_objects[id][:params].keep_if { |k,v| v == true }.each_key { |k| @object_list[k].delete(id) }  
         @all_objects.delete(id) 
       end

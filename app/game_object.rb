@@ -14,11 +14,15 @@ class GameObject
 
   end
 
-  def input
+  def draw
 
   end
 
-  def collision other
+  def input(*args)
+
+  end
+
+  def collision(*args)
 
   end
 end
