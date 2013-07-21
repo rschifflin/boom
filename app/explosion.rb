@@ -20,10 +20,10 @@ class Explosion < GameObject
     super
   end
 
-  def collision_box
-    return { x: @x, y: @y, width: 20, height: 20 } if @duration == 10
-   
-    { x: -999, y: -999, width: 0, height: 0 }
+  def collision_data
+    r = @sprite.current_image.width/2 
+    return { type: :circle, x: @x + r, y: @y + r, r: r } if @duration > 5 
+    return { type: :none } 
   end
   
   def update

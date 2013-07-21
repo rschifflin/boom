@@ -1,6 +1,7 @@
 require_relative 'position'
 require_relative 'game_object'
 require_relative 'window_player_input_adapter'
+require_relative 'lib/collision.rb'
 
 class Player < GameObject
   attr_reader :pos, :binds, :game_input, :facing
@@ -63,13 +64,16 @@ class Player < GameObject
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
   end
  
-  def collision_box
-    { x: pos.x, y: pos.y } 
+  def collision_data
+    return { type: :box, x: pos.x + 12, y: pos.y, w: 32, h: 96 } if @facing == :left
+    return { type: :box, x: pos.x + 20, y: pos.y, w: 32, h: 96 }
   end
 
   def collision other
-    dx = collision_box[:x] - other.collision_box[:x] 
-    puts "Colliding!" if dx > -50 && dx < 50
+    case other.collision_data[:type]
+    when :box then puts "Colliding" if box_box?(collision_data, other.collision_data) 
+    when :circle then puts "Colliding" if box_circle?(collision_data, other.collision_data) 
+    end
   end
 
   def draw
@@ -80,6 +84,17 @@ class Player < GameObject
       @pos.x+1, @pos.y+1, Gosu::Color::GREEN,
       @pos.x,   @pos.y+1, Gosu::Color::GREEN
      ) 
+
+    #Draw the hitbox
+    hitbox_color = Gosu::Color.argb(0x6600ff00)
+    GameWindow.instance.draw_quad(
+      collision_data[:x], collision_data[:y], hitbox_color,
+      collision_data[:x] + collision_data[:w], collision_data[:y], hitbox_color,
+      collision_data[:x] + collision_data[:w], collision_data[:y] + collision_data[:h], hitbox_color,
+      collision_data[:x], collision_data[:y] + collision_data[:h], hitbox_color,
+      9999 #z
+      )
+
   end
 
   def bind_input src, out

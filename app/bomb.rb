@@ -44,8 +44,8 @@ class Bomb < GameObject
     if @fuse <= 0
       GameWindow.instance.remove_object_by_id(@id)
       explosion = Explosion.new(
-        @pos.x - @sprite.current_image.width/2, 
-        @pos.y - @sprite.current_image.height/2
+        @pos.x + @sprite.current_image.width/2, 
+        @pos.y + @sprite.current_image.height/2
         )
       GameWindow.instance.add_object(explosion, {visible: true, collision: true})
     end
