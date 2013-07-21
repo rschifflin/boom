@@ -2,9 +2,11 @@ require 'gosu'
 require 'singleton'
 class GameWindow < Gosu::Window
   include Singleton
-  attr_reader :all_objects, :game_input, :object_list 
-  def initialize
-    super 1024, 768, false
+  attr_reader :all_objects, :game_input, :object_list, :width, :height
+  def initialize 
+    @width = 1024
+    @height = 768
+    super @width, @height, false
     @add_queue = Array.new
     @remove_queue = Array.new
     @change_queue = Array.new
@@ -89,17 +91,69 @@ class GameWindow < Gosu::Window
     when Gosu::Gp0Right then game_id = :p1right
     when Gosu::Gp0Up then game_id = :p1up
     when Gosu::Gp0Down then game_id = :p1down
-
-    when Gosu::KbLeft then game_id = :p2left
-    when Gosu::KbRight then game_id = :p2right
+ 
+    when Gosu::Gp1Button12 then game_id = :p2a
+    when Gosu::Gp1Button13 then game_id = :p2b
+    when Gosu::Gp1Button14 then game_id = :p2c # X button
+    when Gosu::Gp1Button15 then game_id = :p2d
+    when Gosu::Gp1Button10 then game_id = :p2b
+    when Gosu::Gp1Button11 then game_id = :p2f
+    when Gosu::Gp1Left then game_id = :p2left
+    when Gosu::Gp1Right then game_id = :p2right
+    when Gosu::Gp1Up then game_id = :p2up
+    when Gosu::Gp1Down then game_id = :p2down
+    when Gosu::KbR then reset 
+    when Gosu::KbEscape then close
+    when Gosu::Gp0Button8 then reset
     end
-   
+
     unless game_id.nil?
       @game_input[game_id][:was] = @game_input[game_id][:is]
       @game_input[game_id][:is] = is_down
+
       @object_list[:input].each_value { |obj| obj.input game_id }
     end
   end 
+
+  def startup
+    p1 = Player.new
+    p1.pos.teleport(@width/4, @height/2)
+    p1.input_adapter = WindowPlayerInputAdapter.new(self, p1)
+    p1.bind_input(:p1left, :left)
+    p1.bind_input(:p1right, :right)
+    p1.bind_input(:p1up, :up)
+    p1.bind_input(:p1down, :down)
+    p1.bind_input(:p1a, :atk1)
+    p1.bind_input(:p1d, :atk2)
+    p1.bind_input(:p1b, :jump)
+
+    p2 = Player.new
+    p2.input_adapter = WindowPlayerInputAdapter.new(self, p2)
+    p2.pos.teleport(@width*(3.0/4), @height/2)
+
+    p2.bind_input(:p2left, :left)
+    p2.bind_input(:p2right, :right)
+    p2.bind_input(:p2up, :up)
+    p2.bind_input(:p2down, :down)
+
+    p2.bind_input(:p2d, :atk1)
+    p2.bind_input(:p2a, :atk2)
+    p2.bind_input(:p2c, :jump)
+
+    add_object(p1, {input: true, visible: true, collision: true})  
+    add_object(p2, {input: true, visible: true, collision: true})
+    add_object(Solid.new(0,@height-40,@width,100), {collision: true, visible: true} )
+    add_object(Solid.new(-100,0,110,@height), {collision: true, visible: true} )
+    add_object(Solid.new(@width-10,0,110,@height), {collision: true, visible: true} )
+    add_object(Solid.new(0,-100,@width,110), {collision: true} )
+  end
+
+  def reset
+    unload_queues
+    @all_objects.clear
+    @object_list.each_value { |v| v.clear }
+    startup
+  end
 
   def collision
     @object_list[:collision].each do |id1, obj1|
@@ -112,7 +166,11 @@ class GameWindow < Gosu::Window
   end
 
   def draw
-    Gosu::Image.from_text(self, "P1: (#{@all_objects[0][:object].jump_state[:state]})", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
+    #spacing = 0
+    #@game_input.each do |k, v| 
+    #  Gosu::Image.from_text(self, "#{k}: #{@game_input[k][:is]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40+spacing,1)
+    #  spacing += 20
+    #end
     #Gosu::Image.from_text(self, "P1 A: #{@game_input[:p1a][:is]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
     @object_list[:visible].each_value { |obj| obj.draw }
   end

@@ -100,14 +100,16 @@ class Player < GameObject
     if @game_input[:atk1][:is] == true   && 
        @game_input[:atk1][:was] == false &&
        @attack_counters[:atk1] == 0
-      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, get_8dir, 30), {visible: true})
+      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y+32, get_8dir, 30), {visible: true}) if facing == :left
+      GameWindow.instance.add_object(Bomb.new(@pos.x+64, @pos.y+32, get_8dir, 30), {visible: true}) if facing == :right
       @attack_counters[:atk1] = 30
     end
 
     if @game_input[:atk2][:is] == true   &&
        @game_input[:atk2][:was] == false &&
        @attack_counters[:atk2] == 0     
-      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, get_8dir, 45), {visible: true})
+      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y+32, get_8dir, 45), {visible: true}) if facing == :left
+      GameWindow.instance.add_object(Bomb.new(@pos.x+64, @pos.y+32, get_8dir, 45), {visible: true}) if facing == :right
       @attack_counters[:atk2] = 30
     end
 
@@ -190,8 +192,13 @@ class Player < GameObject
           @step[:passy] = false if box_box?(collision_data, other.collision_data)
         end 
       end
-    when :circle 
-      
+    when :circle  
+      if box_circle?(collision_data, other.collision_data) 
+        case other.type 
+        when :kill
+          GameWindow.instance.remove_object_by_id(@id)
+        end
+      end
     end
   end
 
@@ -218,14 +225,21 @@ class Player < GameObject
 
   def draw
     @sprite.draw(@pos.x, @pos.y, 1, @facing==:left)
-    GameWindow.instance.draw_quad(
-      @pos.x,   @pos.y,   Gosu::Color::GREEN,
-      @pos.x+1, @pos.y,   Gosu::Color::GREEN,
-      @pos.x+1, @pos.y+1, Gosu::Color::GREEN,
-      @pos.x,   @pos.y+1, Gosu::Color::GREEN
-     ) 
-
-    #Draw the hitbox
+    #Draw dot for x,y pos
+    #GameWindow.instance.draw_quad(
+    #  @pos.x,   @pos.y,   Gosu::Color::GREEN,
+    #  @pos.x+1, @pos.y,   Gosu::Color::GREEN,
+    #  @pos.x+1, @pos.y+1, Gosu::Color::GREEN,
+    #  @pos.x,   @pos.y+1, Gosu::Color::GREEN
+    # ) 
+   
+    #Draw inputs
+    #spacing = 0
+    #@game_input.each do |k, v| 
+    #  Gosu::Image.from_text(GameWindow.instance, "#{k}: #{@game_input[k][:is]}, #{@game_input[k][:was]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(540+(@id*200),40+spacing,1)
+    #  spacing += 20
+    #end
+    ##Draw the hitbox
     #hitbox_color = Gosu::Color.argb(0x6600ff00)
     #GameWindow.instance.draw_quad(
     #  collision_data[:x], collision_data[:y], hitbox_color,

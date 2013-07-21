@@ -15,7 +15,7 @@ class WindowPlayerInputAdapter
   def adapt(input)
     window_key = input
     player_key = @input_map[input]
-    @player.game_input[player_key] = @window.game_input[window_key]
+    @player.game_input[player_key] = @window.game_input[window_key] if player_key && window_key
   end
 
 end
