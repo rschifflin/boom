@@ -112,7 +112,7 @@ class GameWindow < Gosu::Window
   end
 
   def draw
-    Gosu::Image.from_text(self, "P1: (#{@all_objects[0][:object].pos.x},#{@all_objects[0][:object].pos.y})", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
+    Gosu::Image.from_text(self, "P1: (#{@all_objects[0][:object].jump_state[:state]})", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
     #Gosu::Image.from_text(self, "P1 A: #{@game_input[:p1a][:is]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
     @object_list[:visible].each_value { |obj| obj.draw }
   end

@@ -4,7 +4,7 @@ require_relative 'window_player_input_adapter'
 require_relative 'lib/collision.rb'
 
 class Player < GameObject
-  attr_reader :pos, :binds, :game_input, :facing
+  attr_reader :pos, :binds, :game_input, :facing, :jump_state
   attr_accessor :input_adapter
 
   def initialize
@@ -36,6 +36,7 @@ class Player < GameObject
     @sprite.set_anim :walk
     @pos.teleport(50,50)
     @type = :player
+    @jump_state = { state: :ground, counter: 0 }
   end
 
   def update 
@@ -48,21 +49,16 @@ class Player < GameObject
     if @game_input[:atk2][:is] == true && @game_input[:atk2][:was] == false 
       GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, :left, 60), {visible: true})
     end
+
+    if @jump_state[:state] == :rising
+      @jump_state[:counter] += 1
+      @jump_state[:state] = :air if @jump_state[:counter] == 30
+    end
     
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
   end
- 
-  def collision_data
-    return { type: :box, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } if @facing == :left
-    return { type: :box, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 }
-  end
 
-  def pre_collision
-    @pos.xvel = 0
-
-    @pos.yvel += 0.5 if @pos.yvel <= 10
-    @pos.yvel += 0.1 unless @pos.yvel >= 40
-
+  def move
     if @game_input[:left][:is] 
       @pos.xvel = -5
       @facing = :left
@@ -72,10 +68,45 @@ class Player < GameObject
       @pos.xvel = 5
       @facing = :right
     end
+  end
 
-    if @game_input[:jump][:is] == true && @game_input[:jump][:was] == false
-      @pos.yvel += -30
+  def jump
+    if @game_input[:jump][:is] == true  && 
+       @game_input[:jump][:was] == true && 
+       @jump_state[:state] == :rising
+
+      @pos.yvel = -10
     end
+
+    if @game_input[:jump][:is] == false && 
+       @jump_state[:state] == :rising   &&
+       @jump_state[:state] = :air
+    
+      @jump_state[:counter] = 0
+    end
+
+    if @game_input[:jump][:is] == true   && 
+       @game_input[:jump][:was] == false && 
+       @jump_state[:state] == :ground 
+
+      @pos.yvel = -10
+      @jump_state[:state] = :rising
+      @jump_state[:counter] = 0
+    end
+  end
+
+  def collision_data
+    return { type: :box, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } if @facing == :left
+    return { type: :box, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 }
+  end
+
+  def pre_collision
+    @pos.xvel = 0
+    @pos.yvel += 0.5 if @pos.yvel <= 10
+    @pos.yvel += 0.1 unless @pos.yvel >= 40
+ 
+    move
+    jump
 
     @step = { 
       xorig: @pos.x,
@@ -114,9 +145,12 @@ class Player < GameObject
       @pos.move
     elsif @step[:passx]
       @pos.movex
+      @jump_state[:state] = :ground if @step[:ynew] > @step[:yorig]
     elsif @step[:passy]
       @pos.movey
     end
+    
+    @jump_state[:state] = :air if @pos.y > @step[:yorig]
   end
 
   def draw
