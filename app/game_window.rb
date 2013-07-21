@@ -24,7 +24,9 @@ class GameWindow < Gosu::Window
       p1b: {is: false, was: false},
       p1c: {is: false, was: false},
       p1d: {is: false, was: false},
-      
+      p1e: {is: false, was: false},
+      p1f: {is: false, was: false},
+
       p2left: {is: false, was: false},
       p2right: {is: false, was: false},
       p2up: {is: false, was: false},
@@ -32,8 +34,9 @@ class GameWindow < Gosu::Window
       p2a: {is: false, was: false},
       p2b: {is: false, was: false},
       p2c: {is: false, was: false},
-      p2d: {is: false, was: false}
-
+      p2d: {is: false, was: false},
+      p2e: {is: false, was: false},
+      p2f: {is: false, was: false}
       }
   end
 
@@ -60,10 +63,9 @@ class GameWindow < Gosu::Window
     end
   end
 
-
   def update
+    collision 
     @all_objects.each_value { |val| val[:object].update } 
-    collision
     unload_queues
   end
 
@@ -81,6 +83,8 @@ class GameWindow < Gosu::Window
     when Gosu::Gp0Button1 then game_id = :p1b
     when Gosu::Gp0Button2 then game_id = :p1c
     when Gosu::Gp0Button3 then game_id = :p1d
+    when Gosu::Gp0Button4 then game_id = :p1e
+    when Gosu::Gp0Button5 then game_id = :p1f
     when Gosu::Gp0Left then game_id = :p1left
     when Gosu::Gp0Right then game_id = :p1right
     when Gosu::Gp0Up then game_id = :p1up
@@ -99,14 +103,16 @@ class GameWindow < Gosu::Window
 
   def collision
     @object_list[:collision].each do |id1, obj1|
-      @object_list[:collision].each do |id2, obj2|
+      obj1.pre_collision
+      @object_list[:collision].each do |id2, obj2| 
         obj1.collision obj2 unless id1 == id2
       end
+      obj1.post_collision
     end
   end
 
   def draw
-    #Gosu::Image.from_text(self, "Player1: #{@all_objects[0][:object]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
+    Gosu::Image.from_text(self, "P1: (#{@all_objects[0][:object].pos.x},#{@all_objects[0][:object].pos.y})", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
     #Gosu::Image.from_text(self, "P1 A: #{@game_input[:p1a][:is]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
     @object_list[:visible].each_value { |obj| obj.draw }
   end

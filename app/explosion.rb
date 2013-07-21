@@ -1,6 +1,7 @@
 class Explosion < GameObject
   
   def initialize(x,y)
+    super
     @duration = 10
     @sprite = Sprite.new
     anim_hash = {
@@ -17,7 +18,7 @@ class Explosion < GameObject
     @sprite.set_anim :explosion
     @x = x - @sprite.current_image.width/2
     @y = y - @sprite.current_image.height/2
-    super
+    @type = :kill
   end
 
   def collision_data

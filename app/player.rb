@@ -8,9 +8,11 @@ class Player < GameObject
   attr_accessor :input_adapter
 
   def initialize
+    super
     @pos = Position.new
     @sprite = Sprite.new
     @facing = :left    
+    @step = nil
     @game_input = {
       :left   => { is: false, was: false },
       :down   => { is: false, was: false },
@@ -33,26 +35,12 @@ class Player < GameObject
     @sprite.add_anim anim_hash
     @sprite.set_anim :walk
     @pos.teleport(50,50)
-    super
+    @type = :player
   end
 
-  def update
+  def update 
+    
     @sprite.update
-
-    if @game_input[:left][:is] 
-      @pos.xvel = -5
-      @pos.step
-      @pos.move
-      @facing = :left
-    end
-
-    if @game_input[:right][:is]
-      @pos.xvel = 5
-      @pos.step
-      @pos.move
-      @facing = :right
-    end
-
     if @game_input[:atk1][:is] == true && @game_input[:atk1][:was] == false
       GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, :left, 30), {visible: true})
     end
@@ -65,14 +53,69 @@ class Player < GameObject
   end
  
   def collision_data
-    return { type: :box, x: pos.x + 12, y: pos.y, w: 32, h: 96 } if @facing == :left
-    return { type: :box, x: pos.x + 20, y: pos.y, w: 32, h: 96 }
+    return { type: :box, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } if @facing == :left
+    return { type: :box, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 }
+  end
+
+  def pre_collision
+    @pos.xvel = 0
+
+    @pos.yvel += 0.5 if @pos.yvel <= 10
+    @pos.yvel += 0.1 unless @pos.yvel >= 40
+
+    if @game_input[:left][:is] 
+      @pos.xvel = -5
+      @facing = :left
+    end
+
+    if @game_input[:right][:is]
+      @pos.xvel = 5
+      @facing = :right
+    end
+
+    if @game_input[:jump][:is] == true && @game_input[:jump][:was] == false
+      @pos.yvel += -30
+    end
+
+    @step = { 
+      xorig: @pos.x,
+      xnew:  @pos.x + @pos.xvel,
+      yorig: @pos.y,
+      ynew:  @pos.y + @pos.yvel,
+      passx: true,
+      passy: true,
+      passxy: true
+      }
   end
 
   def collision other
+    @pos.teleport(@step[:xnew], @step[:ynew])
     case other.collision_data[:type]
-    when :box then puts "Colliding" if box_box?(collision_data, other.collision_data) 
-    when :circle then puts "Colliding" if box_circle?(collision_data, other.collision_data) 
+    when :box 
+      if box_box?(collision_data, other.collision_data) 
+        case other.type
+        when :player, :solid
+          @step[:passxy] = false 
+          @pos.teleport(@step[:xnew], @step[:yorig]) 
+          @step[:passx] = false if box_box?(collision_data, other.collision_data)
+          @pos.teleport(@step[:xorig], @step[:ynew])
+          @step[:passy] = false if box_box?(collision_data, other.collision_data)
+        end 
+      end
+    when :circle 
+      
+    end
+  end
+
+  def post_collision
+    @pos.teleport(@step[:xorig], @step[:yorig])
+
+    if @step[:passxy] 
+      @pos.move
+    elsif @step[:passx]
+      @pos.movex
+    elsif @step[:passy]
+      @pos.movey
     end
   end
 

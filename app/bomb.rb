@@ -6,24 +6,14 @@ require_relative 'explosion'
 
 class Bomb < GameObject
   attr_reader :pos, :fuse
+
   def initialize(x, y, dir, fuse)
+    super
     @pos = Position.new
     @pos.teleport(x,y)
-    @pos.xfrict = 0
-    @pos.yfrict = 0
     @dir = dir
     @fuse = fuse
-    case @dir
-    when :upleft, :left, :downleft
-      @pos.xvel = -10
-    when :upright, :right, :downright
-      @pos.xvel = 10
-    when :upleft, :up, :upright
-      @pos.yvel = -10
-    when :downleft, :down, :downright
-      @pos.yvel = 10
-    end
-
+    
     @sprite = Sprite.new
     anim_hash = {
       :name => :bomb,
@@ -37,10 +27,24 @@ class Bomb < GameObject
       }
     @sprite.add_anim anim_hash
     @sprite.set_anim :bomb
-    super #Gives us our obj id
+    @type = :bomb
   end
 
+  def apply_velocity
+    case @dir
+    when :upleft, :left, :downleft
+      @pos.xvel = -10
+    when :upright, :right, :downright
+      @pos.xvel = 10
+    when :upleft, :up, :upright
+      @pos.yvel = -10
+    when :downleft, :down, :downright
+      @pos.yvel = 10
+    end
+  end 
+
   def update
+    apply_velocity
     if @fuse <= 0
       GameWindow.instance.remove_object_by_id(@id)
       explosion = Explosion.new(
@@ -50,7 +54,6 @@ class Bomb < GameObject
       GameWindow.instance.add_object(explosion, {visible: true, collision: true})
     end
     @fuse -= 1 if @fuse > 0
-    @pos.step
     @pos.move
     @sprite.update
   end
