@@ -37,25 +37,59 @@ class Player < GameObject
     @pos.teleport(50,50)
     @type = :player
     @jump_state = { state: :ground, counter: 0 }
+    @attack_counters = { atk1: 0, atk2: 0, atk3: 0 }
+    @freeze_counter = 0 
   end
 
   def update 
-    
+    attack if @freeze_counter == 0
+
     @sprite.update
-    if @game_input[:atk1][:is] == true && @game_input[:atk1][:was] == false
-      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, :left, 30), {visible: true})
-    end
-
-    if @game_input[:atk2][:is] == true && @game_input[:atk2][:was] == false 
-      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, :left, 60), {visible: true})
-    end
-
     if @jump_state[:state] == :rising
-      @jump_state[:counter] += 1
-      @jump_state[:state] = :air if @jump_state[:counter] == 30
+      @jump_state[:counter] -= 1
+      @jump_state[:state] = :air if @jump_state[:counter] == 0
     end
-    
+   
+    @freeze_counter -= 1 if @freeze_counter > 0
+    @attack_counters.each_key do |k|
+      @attack_counters[k] -= 1 if @attack_counters[k] > 0
+    end
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
+  end
+
+  def get_8dir
+    if @game_input[:left][:is]
+      return :upleft if @game_input[:up][:is]
+      return :downleft if @game_input[:down][:is]
+      return :left
+    elsif @game_input[:right][:is]
+      return :upright if @game_input[:up][:is]
+      return :downright if @game_input[:down][:is]
+      return :right
+    elsif @game_input[:up][:is]
+      return :up
+    elsif @game_input[:down][:is]
+      return :down
+    else
+      return @facing
+    end
+  end
+
+  def attack
+    if @game_input[:atk1][:is] == true   && 
+       @game_input[:atk1][:was] == false &&
+       @attack_counters[:atk1] == 0
+      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, get_8dir, 30), {visible: true})
+      @attack_counters[:atk1] = 30
+    end
+
+    if @game_input[:atk2][:is] == true   &&
+       @game_input[:atk2][:was] == false &&
+       @attack_counters[:atk2] == 0     
+      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y, get_8dir, 45), {visible: true})
+      @attack_counters[:atk2] = 30
+    end
+
   end
 
   def move
@@ -82,7 +116,6 @@ class Player < GameObject
        @jump_state[:state] == :rising   &&
        @jump_state[:state] = :air
     
-      @jump_state[:counter] = 0
     end
 
     if @game_input[:jump][:is] == true   && 
@@ -91,7 +124,7 @@ class Player < GameObject
 
       @pos.yvel = -10
       @jump_state[:state] = :rising
-      @jump_state[:counter] = 0
+      @jump_state[:counter] = 30
     end
   end
 
@@ -100,13 +133,15 @@ class Player < GameObject
     return { type: :box, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 }
   end
 
-  def pre_collision
-    @pos.xvel = 0
-    @pos.yvel += 0.5 if @pos.yvel <= 10
-    @pos.yvel += 0.1 unless @pos.yvel >= 40
+  def pre_collision 
+    if @freeze_counter == 0
+      @pos.xvel = 0
+      @pos.yvel += 0.5 if @pos.yvel <= 10
+      @pos.yvel += 0.1 unless @pos.yvel >= 40
  
-    move
-    jump
+      move
+      jump
+    end
 
     @step = { 
       xorig: @pos.x,

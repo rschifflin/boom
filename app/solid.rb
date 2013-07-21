@@ -26,7 +26,7 @@ class Solid < GameObject
       @x + @w, @y, Gosu::Color::BLUE,
       @x + @w, @y + @h, Gosu::Color::BLUE,
       @x, @y + @h, Gosu::Color::BLUE,
-      9999 #z
+      0 #z
       )
   end
 
