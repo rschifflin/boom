@@ -3,13 +3,13 @@ require_relative 'game_object'
 require_relative 'window_player_input_adapter'
 
 class Player < GameObject
-  attr_reader :pos, :binds, :game_input
+  attr_reader :pos, :binds, :game_input, :facing
   attr_accessor :input_adapter
 
   def initialize
     @pos = Position.new
     @sprite = Sprite.new
-    
+    @facing = :left    
     @game_input = {
       :left   => { is: false, was: false },
       :down   => { is: false, was: false },
@@ -42,12 +42,14 @@ class Player < GameObject
       @pos.xvel = -5
       @pos.step
       @pos.move
+      @facing = :left
     end
 
     if @game_input[:right][:is]
       @pos.xvel = 5
       @pos.step
       @pos.move
+      @facing = :right
     end
 
     if @game_input[:atk1][:is] == true && @game_input[:atk1][:was] == false
@@ -71,7 +73,13 @@ class Player < GameObject
   end
 
   def draw
-    @sprite.draw(@pos.x, @pos.y, 1)
+    @sprite.draw(@pos.x, @pos.y, 1, @facing==:left)
+    GameWindow.instance.draw_quad(
+      @pos.x,   @pos.y,   Gosu::Color::GREEN,
+      @pos.x+1, @pos.y,   Gosu::Color::GREEN,
+      @pos.x+1, @pos.y+1, Gosu::Color::GREEN,
+      @pos.x,   @pos.y+1, Gosu::Color::GREEN
+     ) 
   end
 
   def bind_input src, out

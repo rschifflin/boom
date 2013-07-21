@@ -9,8 +9,8 @@ class Sprite
     @current_anim = nil
   end
 
-  def draw(x, y, z)
-    current_image.draw(x, y, z) 
+  def draw(x, y, z, flip=false)
+    flip ? current_image.draw(x, y, z) : current_image.draw(x + current_image.width, y, z, factor_x = -1)  
   end
 
   def add_anim anim_hash
