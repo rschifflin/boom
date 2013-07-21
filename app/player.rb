@@ -34,6 +34,27 @@ class Player < GameObject
       }
     @sprite.add_anim anim_hash
     @sprite.set_anim :walk
+
+    anim_hash = {
+      :name => :jump,
+      :loop => true,
+      :speed => 5,
+      :index => 0,
+      :paused => false,
+      :images => [ Gosu::Image.new(GameWindow.instance, "images/blockfig_jump.png", false) ]
+      }
+    @sprite.add_anim anim_hash
+    
+    anim_hash = {
+      :name => :stand,
+      :loop => true,
+      :speed => 5,
+      :index => 0,
+      :paused => false,
+      :images => [ Gosu::Image.new(GameWindow.instance, "images/blockfig_stand.png", false) ]
+      }
+    @sprite.add_anim anim_hash
+
     @pos.teleport(50,50)
     @type = :player
     @jump_state = { state: :ground, counter: 0 }
@@ -108,7 +129,7 @@ class Player < GameObject
     if @game_input[:jump][:is] == true  && 
        @game_input[:jump][:was] == true && 
        @jump_state[:state] == :rising
-
+      
       @pos.yvel = -10
     end
 
@@ -125,6 +146,7 @@ class Player < GameObject
       @pos.yvel = -10
       @jump_state[:state] = :rising
       @jump_state[:counter] = 30
+      @sprite.set_anim(:jump)
     end
   end
 
@@ -184,7 +206,13 @@ class Player < GameObject
     elsif @step[:passy]
       @pos.movey
     end
-    
+   
+    if @jump_state[:state] == :ground && @step[:xorig] == @step[:xnew] 
+      @sprite.set_anim(:stand)
+    elsif @jump_state[:state] == :ground && @sprite.current_anim[:name] != :walk
+      @sprite.set_anim(:walk)
+    end
+
     @jump_state[:state] = :air if @pos.y > @step[:yorig]
   end
 
@@ -198,14 +226,14 @@ class Player < GameObject
      ) 
 
     #Draw the hitbox
-    hitbox_color = Gosu::Color.argb(0x6600ff00)
-    GameWindow.instance.draw_quad(
-      collision_data[:x], collision_data[:y], hitbox_color,
-      collision_data[:x] + collision_data[:w], collision_data[:y], hitbox_color,
-      collision_data[:x] + collision_data[:w], collision_data[:y] + collision_data[:h], hitbox_color,
-      collision_data[:x], collision_data[:y] + collision_data[:h], hitbox_color,
-      9999 #z
-      )
+    #hitbox_color = Gosu::Color.argb(0x6600ff00)
+    #GameWindow.instance.draw_quad(
+    #  collision_data[:x], collision_data[:y], hitbox_color,
+    #  collision_data[:x] + collision_data[:w], collision_data[:y], hitbox_color,
+    #  collision_data[:x] + collision_data[:w], collision_data[:y] + collision_data[:h], hitbox_color,
+    #  collision_data[:x], collision_data[:y] + collision_data[:h], hitbox_color,
+    #  9999 #z
+    #  )
 
   end
 

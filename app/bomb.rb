@@ -33,21 +33,21 @@ class Bomb < GameObject
   def apply_velocity
     case @dir
     when :upleft
-      @pos.xvel = -10
-      @pos.yvel = -10
+      @pos.xvel = -7.07
+      @pos.yvel = -7.07
     when :left 
       @pos.xvel = -10
     when :downleft
-      @pos.xvel = -10
-      @pos.yvel = 10
+      @pos.xvel = -7.07
+      @pos.yvel = 7.07
     when :upright 
-      @pos.xvel = 10
-      @pos.yvel = -10
+      @pos.xvel = 7.07
+      @pos.yvel = -7.07 
     when :right
       @pos.xvel = 10
     when :downright
-      @pos.xvel = 10
-      @pos.yvel = 10
+      @pos.xvel = 7.07 
+      @pos.yvel = 7.07
     when :up
       @pos.yvel = -10
     when :down
