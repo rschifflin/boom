@@ -40,9 +40,7 @@ class Sprite
   end
   
   def update
-    unless @anims[@current_key].nil? || @anims[@current_key][:paused]
-      update_counter
-    end
+    update_counter unless @anims[@current_key].nil? || @anims[@current_key][:paused]
   end
 
   def pause
@@ -52,7 +50,9 @@ class Sprite
   def unpause
     @anims[@current_key][:paused] = false
   end
+	
   private
+	
   def update_counter
     anim = current_anim
     anim[:counter] += 1 
@@ -82,10 +82,9 @@ class Sprite
 
     #Semantics
     return false if anim_hash[:images].count < 1
-    count = anim_hash[:images].count
     return false if anim_hash[:loop] != true && anim_hash[:loop] != false
     return false if anim_hash[:speed] < 1
-    return false if anim_hash[:index] > count || anim_hash[:index] < 0
+    return false if anim_hash[:index] > anim_hash[:images].count || anim_hash[:index] < 0
     return false if anim_hash[:paused] != true && anim_hash[:paused] != false
     
     return true

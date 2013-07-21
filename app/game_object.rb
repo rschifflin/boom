@@ -12,24 +12,24 @@ class GameObject
   end
 
   def update
-
   end
 
   def draw
-
   end
 
   def input(*args)
-
   end
 
-
-#COLLISION INTERFACE
-
-  def pre_collision
+	
+	#COLLISION INTERFACE
+  def collision_data
+		{ type: none }
+	end
+	def pre_collision
   end
   def collision(*args)
   end
   def post_collision
   end
+	
 end

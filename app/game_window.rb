@@ -7,17 +7,29 @@ class GameWindow < Gosu::Window
     @width = 1024
     @height = 768
     super @width, @height, false
-    @add_queue = Array.new
+		
+		init_queues
+		init_lists
+		init_input
+  end
+	
+	def init_queues
+	  @add_queue = Array.new
     @remove_queue = Array.new
     @change_queue = Array.new
-
-    @all_objects = Hash.new
+	end
+	
+	def init_lists
+	  @all_objects = Hash.new
     @object_list = Hash.new
     @object_list[:collision] = Hash.new(false)
     @object_list[:input] = Hash.new(false)
     @object_list[:visible] = Hash.new(false)
     @object_list[:physics] = Hash.new(false)
-    @game_input = {
+	end
+	
+	def init_input
+   @game_input = {
       p1left: {is: false, was: false},
       p1right: {is: false, was: false},
       p1up: {is: false, was: false},
@@ -26,8 +38,6 @@ class GameWindow < Gosu::Window
       p1b: {is: false, was: false},
       p1c: {is: false, was: false},
       p1d: {is: false, was: false},
-      p1e: {is: false, was: false},
-      p1f: {is: false, was: false},
 
       p2left: {is: false, was: false},
       p2right: {is: false, was: false},
@@ -37,10 +47,26 @@ class GameWindow < Gosu::Window
       p2b: {is: false, was: false},
       p2c: {is: false, was: false},
       p2d: {is: false, was: false},
-      p2e: {is: false, was: false},
-      p2f: {is: false, was: false}
-      }
-  end
+			
+      p3left: {is: false, was: false},
+      p3right: {is: false, was: false},
+      p3up: {is: false, was: false},
+      p3down: {is: false, was: false},
+      p3a: {is: false, was: false},
+      p3b: {is: false, was: false},
+      p3c: {is: false, was: false},
+      p3d: {is: false, was: false},
+
+      p4left: {is: false, was: false},
+      p4right: {is: false, was: false},
+      p4up: {is: false, was: false},
+      p4down: {is: false, was: false},
+      p4a: {is: false, was: false},
+      p4b: {is: false, was: false},
+      p4c: {is: false, was: false},
+      p4d: {is: false, was: false},			
+      }	
+	end
 
   def add_object obj, params 
     @add_queue << [obj, params]
@@ -66,7 +92,7 @@ class GameWindow < Gosu::Window
   end
 
   def update
-    collision 
+    collision
     @all_objects.each_value { |val| val[:object].update } 
     unload_queues
   end
@@ -128,18 +154,17 @@ class GameWindow < Gosu::Window
     p1.bind_input(:p1b, :jump)
 
     p2 = Player.new
+		p2.pos.teleport(@width*(3.0/4), @height/2)
     p2.input_adapter = WindowPlayerInputAdapter.new(self, p2)
-    p2.pos.teleport(@width*(3.0/4), @height/2)
-
     p2.bind_input(:p2left, :left)
     p2.bind_input(:p2right, :right)
     p2.bind_input(:p2up, :up)
     p2.bind_input(:p2down, :down)
-
     p2.bind_input(:p2d, :atk1)
     p2.bind_input(:p2a, :atk2)
     p2.bind_input(:p2c, :jump)
 
+		#Adding p1, p2, floor, left wall, right wall, and invisible ceiling
     add_object(p1, {input: true, visible: true, collision: true})  
     add_object(p2, {input: true, visible: true, collision: true})
     add_object(Solid.new(0,@height-40,@width,100), {collision: true, visible: true} )
@@ -166,16 +191,18 @@ class GameWindow < Gosu::Window
   end
 
   def draw
+		@object_list[:visible].each_value { |obj| obj.draw }
+		
+		#Draw inputs
     #spacing = 0
     #@game_input.each do |k, v| 
     #  Gosu::Image.from_text(self, "#{k}: #{@game_input[k][:is]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40+spacing,1)
     #  spacing += 20
     #end
-    #Gosu::Image.from_text(self, "P1 A: #{@game_input[:p1a][:is]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40,1)
-    @object_list[:visible].each_value { |obj| obj.draw }
   end
 
   private
+	
   def unload_queues 
     change_objects_from_queue
     add_objects_from_queue
@@ -188,7 +215,7 @@ class GameWindow < Gosu::Window
       params = q[1]
       unless obj.nil? || obj.id.nil?
         @all_objects[obj.id] = { object: obj, params: params } 
-        params = Hash.new if params.nil?
+        params ||= Hash.new
         params.keep_if { |k,v| v == true }.each_key { |k| @object_list[k][obj.id] = obj }
       end
     end
@@ -213,6 +240,3 @@ class GameWindow < Gosu::Window
     @change_queue.clear
   end
 end
-
-#w = GameWindow.new
-#w.show

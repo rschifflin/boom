@@ -12,7 +12,7 @@ class Player < GameObject
     @pos = Position.new
     @sprite = Sprite.new
     @facing = :left    
-    @step = nil
+    
     @game_input = {
       :left   => { is: false, was: false },
       :down   => { is: false, was: false },
@@ -55,7 +55,6 @@ class Player < GameObject
       }
     @sprite.add_anim anim_hash
 
-    @pos.teleport(50,50)
     @type = :player
     @jump_state = { state: :ground, counter: 0 }
     @attack_counters = { atk1: 0, atk2: 0, atk3: 0 }
@@ -63,21 +62,20 @@ class Player < GameObject
   end
 
   def update 
-    attack if @freeze_counter == 0
-
-    @sprite.update
-    if @jump_state[:state] == :rising
-      @jump_state[:counter] -= 1
-      @jump_state[:state] = :air if @jump_state[:counter] == 0
-    end
-   
-    @freeze_counter -= 1 if @freeze_counter > 0
-    @attack_counters.each_key do |k|
-      @attack_counters[k] -= 1 if @attack_counters[k] > 0
-    end
+    
+		@sprite.update
+		attack if @freeze_counter == 0
+		update_counters
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
   end
 
+	def update_counters
+    @freeze_counter -= 1 if @freeze_counter > 0
+    @attack_counters.each_key do |k|
+      @attack_counters[k] -= 1 if @attack_counters[k] > 0
+    end	
+	end
+	
   def get_8dir
     if @game_input[:left][:is]
       return :upleft if @game_input[:up][:is]
@@ -112,7 +110,6 @@ class Player < GameObject
       GameWindow.instance.add_object(Bomb.new(@pos.x+64, @pos.y+32, get_8dir, 45), {visible: true}) if facing == :right
       @attack_counters[:atk2] = 30
     end
-
   end
 
   def move
@@ -136,9 +133,8 @@ class Player < GameObject
     end
 
     if @game_input[:jump][:is] == false && 
-       @jump_state[:state] == :rising   &&
-       @jump_state[:state] = :air
-    
+       @jump_state[:state] == :rising
+      @jump_state[:state] = :air
     end
 
     if @game_input[:jump][:is] == true   && 
@@ -150,6 +146,12 @@ class Player < GameObject
       @jump_state[:counter] = 30
       @sprite.set_anim(:jump)
     end
+		
+		if @jump_state[:state] == :rising
+      @jump_state[:counter] -= 1
+      @jump_state[:state] = :air if @jump_state[:counter] == 0
+    end
+		
   end
 
   def collision_data
@@ -180,6 +182,7 @@ class Player < GameObject
 
   def collision other
     @pos.teleport(@step[:xnew], @step[:ynew])
+		
     case other.collision_data[:type]
     when :box 
       if box_box?(collision_data, other.collision_data) 
@@ -225,6 +228,7 @@ class Player < GameObject
 
   def draw
     @sprite.draw(@pos.x, @pos.y, 1, @facing==:left)
+		
     #Draw dot for x,y pos
     #GameWindow.instance.draw_quad(
     #  @pos.x,   @pos.y,   Gosu::Color::GREEN,
@@ -239,6 +243,7 @@ class Player < GameObject
     #  Gosu::Image.from_text(GameWindow.instance, "#{k}: #{@game_input[k][:is]}, #{@game_input[k][:was]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(540+(@id*200),40+spacing,1)
     #  spacing += 20
     #end
+		
     ##Draw the hitbox
     #hitbox_color = Gosu::Color.argb(0x6600ff00)
     #GameWindow.instance.draw_quad(
