@@ -55,26 +55,35 @@ class Player < GameObject
       }
     @sprite.add_anim anim_hash
 
+    anim_hash = {
+      :name => :death,
+      :loop => false,
+      :speed => 5,
+      :index => 0,
+      :paused => false,
+      :images => Gosu::Image.load_tiles(GameWindow.instance, "images/blockfig_die.png", 64, 96, false)
+      }
+    @sprite.add_anim anim_hash
+
     @type = :player
     @jump_state = { state: :ground, counter: 0 }
     @attack_counters = { atk1: 0, atk2: 0, atk3: 0 }
     @freeze_counter = 0 
   end
 
-  def update 
-    
-		@sprite.update
-		attack if @freeze_counter == 0
-		update_counters
+  def update  
+    @sprite.update
+    attack if @freeze_counter == 0
+    update_counters
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
   end
 
-	def update_counters
+  def update_counters
     @freeze_counter -= 1 if @freeze_counter > 0
     @attack_counters.each_key do |k|
       @attack_counters[k] -= 1 if @attack_counters[k] > 0
     end	
-	end
+  end
 	
   def get_8dir
     if @game_input[:left][:is]
@@ -147,7 +156,7 @@ class Player < GameObject
       @sprite.set_anim(:jump)
     end
 		
-		if @jump_state[:state] == :rising
+    if @jump_state[:state] == :rising
       @jump_state[:counter] -= 1
       @jump_state[:state] = :air if @jump_state[:counter] == 0
     end
@@ -199,7 +208,9 @@ class Player < GameObject
       if box_circle?(collision_data, other.collision_data) 
         case other.type 
         when :kill
-          GameWindow.instance.remove_object_by_id(@id)
+          GameWindow.instance.change_object_by_id(@id, {input: false, collision: false} )
+          @sprite.set_anim :death
+          @sprite.lock
         end
       end
     end

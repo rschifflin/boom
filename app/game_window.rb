@@ -13,22 +13,22 @@ class GameWindow < Gosu::Window
 		init_input
   end
 	
-	def init_queues
-	  @add_queue = Array.new
+  def init_queues
+    @add_queue = Array.new
     @remove_queue = Array.new
     @change_queue = Array.new
-	end
+  end
 	
-	def init_lists
-	  @all_objects = Hash.new
+  def init_lists
+    @all_objects = Hash.new
     @object_list = Hash.new
     @object_list[:collision] = Hash.new(false)
     @object_list[:input] = Hash.new(false)
     @object_list[:visible] = Hash.new(false)
     @object_list[:physics] = Hash.new(false)
-	end
+  end
 	
-	def init_input
+  def init_input
    @game_input = {
       p1left: {is: false, was: false},
       p1right: {is: false, was: false},
@@ -66,7 +66,7 @@ class GameWindow < Gosu::Window
       p4c: {is: false, was: false},
       p4d: {is: false, was: false},			
       }	
-	end
+  end
 
   def add_object obj, params 
     @add_queue << [obj, params]

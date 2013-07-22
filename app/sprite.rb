@@ -4,6 +4,7 @@ require_relative 'game_window'
 class Sprite 
     
   def initialize 
+    @lock = false
     @anims = Hash.new
     @current_key = nil
     @current_anim = nil
@@ -22,11 +23,20 @@ class Sprite
   end
 
   def set_anim anim_name
+    return false if @lock
     @current_key = anim_name
     unless @anims[@current_key].nil?
       @anims[@current_key][:counter] = 0
       @anims[@current_key][:index] = 0
     end
+  end
+
+  def lock
+    @lock = true 
+  end
+
+  def unlock
+    @lock = false
   end
 
   def current_anim
