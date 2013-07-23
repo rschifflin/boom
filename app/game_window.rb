@@ -107,6 +107,15 @@ class GameWindow < Gosu::Window
 
   def button_press(hw_id, is_down)
     case hw_id
+   
+    when Gosu::KbZ then game_id = :p1a
+    when Gosu::KbA then game_id = :p1b
+    when Gosu::KbX then game_id = :p1d
+    when Gosu::KbLeft then game_id = :p1left
+    when Gosu::KbRight then game_id = :p1right
+    when Gosu::KbUp then game_id = :p1up
+    when Gosu::KbDown then game_id = :p1down
+    
     when Gosu::Gp0Button0 then game_id = :p1a
     when Gosu::Gp0Button1 then game_id = :p1b
     when Gosu::Gp0Button2 then game_id = :p1c
