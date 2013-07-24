@@ -2,7 +2,7 @@ require_relative 'position'
 require_relative 'game_object'
 require_relative 'window_player_input_adapter'
 require_relative 'lib/collision.rb'
-
+require_relative 'arm'
 class Player < GameObject
   attr_reader :pos, :binds, :game_input, :facing, :jump_state
   attr_accessor :input_adapter
@@ -10,6 +10,7 @@ class Player < GameObject
   def initialize
     super
     @pos = Position.new
+    @arm = Arm.new
     @sprite = Sprite.new
     @facing = :left    
     
@@ -73,6 +74,7 @@ class Player < GameObject
 
   def update  
     @sprite.update
+    @facing == :left ? @arm.set_arm(get_8dir, @pos.x+38, @pos.y+35) : @arm.set_arm(get_8dir, @pos.x+26, @pos.y+35)
     attack if @freeze_counter == 0
     update_counters
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
@@ -159,8 +161,13 @@ class Player < GameObject
     if @jump_state[:state] == :rising
       @jump_state[:counter] -= 1
       @jump_state[:state] = :air if @jump_state[:counter] == 0
-    end
-		
+    end		
+  end
+
+  def die
+    GameWindow.instance.change_object_by_id(@id, {input: false, collision: false} )
+    @sprite.set_anim :death
+    @sprite.lock
   end
 
   def collision_data
@@ -208,9 +215,7 @@ class Player < GameObject
       if box_circle?(collision_data, other.collision_data) 
         case other.type 
         when :kill
-          GameWindow.instance.change_object_by_id(@id, {input: false, collision: false} )
-          @sprite.set_anim :death
-          @sprite.lock
+          die
         end
       end
     end
@@ -239,7 +244,7 @@ class Player < GameObject
 
   def draw
     @sprite.draw(@pos.x, @pos.y, 1, @facing==:left)
-		
+    @arm.draw		
     #Draw dot for x,y pos
     #GameWindow.instance.draw_quad(
     #  @pos.x,   @pos.y,   Gosu::Color::GREEN,
