@@ -71,6 +71,6 @@ class Bomb < GameObject
   end
 
   def draw
-    @sprite.draw(@pos.x, @pos.y, 2) 
+    @sprite.draw(@pos.x-10, @pos.y-10, 2) 
   end
 end

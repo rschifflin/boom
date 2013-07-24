@@ -70,11 +70,12 @@ class Player < GameObject
     @jump_state = { state: :ground, counter: 0 }
     @attack_counters = { atk1: 0, atk2: 0, atk3: 0 }
     @freeze_counter = 0 
+    @dead = false
   end
 
   def update  
     @sprite.update
-    @facing == :left ? @arm.set_arm(get_8dir, @pos.x+38, @pos.y+35) : @arm.set_arm(get_8dir, @pos.x+26, @pos.y+35)
+    @arm.set_arm(get_8dir, @pos.x+32, @pos.y+40)
     attack if @freeze_counter == 0
     update_counters
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
@@ -109,17 +110,15 @@ class Player < GameObject
     if @game_input[:atk1][:is] == true   && 
        @game_input[:atk1][:was] == false &&
        @attack_counters[:atk1] == 0
-      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y+32, get_8dir, 30), {visible: true}) if facing == :left
-      GameWindow.instance.add_object(Bomb.new(@pos.x+64, @pos.y+32, get_8dir, 30), {visible: true}) if facing == :right
-      @attack_counters[:atk1] = 30
+      GameWindow.instance.add_object(Bomb.new(@arm.x_end, @arm.y_end, get_8dir, 30), {visible: true}) 
+      @attack_counters[:atk1] = 45
     end
 
     if @game_input[:atk2][:is] == true   &&
        @game_input[:atk2][:was] == false &&
        @attack_counters[:atk2] == 0     
-      GameWindow.instance.add_object(Bomb.new(@pos.x, @pos.y+32, get_8dir, 45), {visible: true}) if facing == :left
-      GameWindow.instance.add_object(Bomb.new(@pos.x+64, @pos.y+32, get_8dir, 45), {visible: true}) if facing == :right
-      @attack_counters[:atk2] = 30
+      GameWindow.instance.add_object(Bomb.new(@arm.x_end, @arm.y_end, get_8dir, 45), {visible: true}) 
+      @attack_counters[:atk2] = 45
     end
   end
 
@@ -168,6 +167,7 @@ class Player < GameObject
     GameWindow.instance.change_object_by_id(@id, {input: false, collision: false} )
     @sprite.set_anim :death
     @sprite.lock
+    @dead = true
   end
 
   def collision_data
@@ -244,7 +244,7 @@ class Player < GameObject
 
   def draw
     @sprite.draw(@pos.x, @pos.y, 1, @facing==:left)
-    @arm.draw		
+    @arm.draw unless @dead	
     #Draw dot for x,y pos
     #GameWindow.instance.draw_quad(
     #  @pos.x,   @pos.y,   Gosu::Color::GREEN,
