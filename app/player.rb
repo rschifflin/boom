@@ -74,7 +74,7 @@ class Player < GameObject
 
   def update  
     @sprite.update
-    @arm.set_arm(get_8dir, @pos.x+32, @pos.y+32)
+    @facing == :left ? @arm.set_arm(get_8dir, @pos.x+38, @pos.y+35) : @arm.set_arm(get_8dir, @pos.x+26, @pos.y+35)
     attack if @freeze_counter == 0
     update_counters
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
