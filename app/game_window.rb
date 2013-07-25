@@ -26,6 +26,7 @@ class GameWindow < Gosu::Window
     @object_list[:input] = Hash.new(false)
     @object_list[:visible] = Hash.new(false)
     @object_list[:physics] = Hash.new(false)
+    @object_list[:solid] = Hash.new(false)
   end
 	
   def init_input
@@ -92,7 +93,8 @@ class GameWindow < Gosu::Window
   end
 
   def update
-    collision
+    solid       #All bounding box/motion collision checks
+    collision   #All hitbox collision checks
     @all_objects.each_value { |val| val[:object].update } 
     unload_queues
   end
@@ -163,7 +165,7 @@ class GameWindow < Gosu::Window
     p1.bind_input(:p1b, :jump)
 
     p2 = Player.new
-		p2.pos.teleport(@width*(3.0/4), @height/2)
+    p2.pos.teleport(@width*(3.0/4), @height/2)
     p2.input_adapter = WindowPlayerInputAdapter.new(self, p2)
     p2.bind_input(:p2left, :left)
     p2.bind_input(:p2right, :right)
@@ -173,13 +175,13 @@ class GameWindow < Gosu::Window
     p2.bind_input(:p2a, :atk2)
     p2.bind_input(:p2c, :jump)
 
-		#Adding p1, p2, floor, left wall, right wall, and invisible ceiling
-    add_object(p1, {input: true, visible: true, collision: true})  
-    add_object(p2, {input: true, visible: true, collision: true})
-    add_object(Solid.new(0,@height-40,@width,100), {collision: true, visible: true} )
-    add_object(Solid.new(-100,0,110,@height), {collision: true, visible: true} )
-    add_object(Solid.new(@width-10,0,110,@height), {collision: true, visible: true} )
-    add_object(Solid.new(0,-100,@width,110), {collision: true} )
+    #Adding p1, p2, floor, left wall, right wall, and invisible ceiling
+    add_object(p1, {input: true, visible: true, collision: true, solid: true})  
+    add_object(p2, {input: true, visible: true, collision: true, solid: true})
+    add_object(Solid.new(0,@height-40,@width,100), {solid: true, visible: true} )
+    add_object(Solid.new(-100,0,110,@height), {solid: true, visible: true} )
+    add_object(Solid.new(@width-10,0,110,@height), {solid: true, visible: true} )
+    add_object(Solid.new(0,-100,@width,110), {solid: true} )
   end
 
   def reset
@@ -189,20 +191,28 @@ class GameWindow < Gosu::Window
     startup
   end
 
+  def solid
+    @object_list[:solid].each do |id1, obj1|
+      obj1.pre_solid
+      @object_list[:solid].each do |id2, obj2| 
+        obj1.solid obj2 unless id1 == id2
+      end
+      obj1.post_solid
+    end
+  end
+
   def collision
     @object_list[:collision].each do |id1, obj1|
-      obj1.pre_collision
       @object_list[:collision].each do |id2, obj2| 
         obj1.collision obj2 unless id1 == id2
       end
-      obj1.post_collision
     end
   end
 
   def draw
-		@object_list[:visible].each_value { |obj| obj.draw }
+    @object_list[:visible].each_value { |obj| obj.draw }
 		
-		#Draw inputs
+    #Draw inputs
     #spacing = 0
     #@game_input.each do |k, v| 
     #  Gosu::Image.from_text(self, "#{k}: #{@game_input[k][:is]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(40,40+spacing,1)

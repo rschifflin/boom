@@ -164,18 +164,22 @@ class Player < GameObject
   end
 
   def die
-    GameWindow.instance.change_object_by_id(@id, {input: false, collision: false} )
+    GameWindow.instance.change_object_by_id(@id, {input: false, solid: false, collision: false} )
     @sprite.set_anim :death
     @sprite.lock
     @dead = true
   end
 
   def collision_data
-    return { type: :box, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } if @facing == :left
-    return { type: :box, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 }
+    solid_data
   end
 
-  def pre_collision 
+  def solid_data
+      return { type: :box, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } if @facing == :left
+      return { type: :box, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 }
+  end
+
+  def pre_solid 
     if @freeze_counter == 0
       @pos.xvel = 0
       @pos.yvel += 0.5 if @pos.yvel <= 10
@@ -196,32 +200,25 @@ class Player < GameObject
       }
   end
 
-  def collision other
+  def solid other
     @pos.teleport(@step[:xnew], @step[:ynew])
 		
-    case other.collision_data[:type]
+    case other.solid_data[:type]
     when :box 
-      if box_box?(collision_data, other.collision_data) 
+      if box_box?(solid_data, other.solid_data) 
         case other.type
         when :player, :solid
           @step[:passxy] = false 
           @pos.teleport(@step[:xnew], @step[:yorig]) 
-          @step[:passx] = false if box_box?(collision_data, other.collision_data)
+          @step[:passx] = false if box_box?(solid_data, other.solid_data)
           @pos.teleport(@step[:xorig], @step[:ynew])
-          @step[:passy] = false if box_box?(collision_data, other.collision_data)
+          @step[:passy] = false if box_box?(solid_data, other.solid_data)
         end 
-      end
-    when :circle  
-      if box_circle?(collision_data, other.collision_data) 
-        case other.type 
-        when :kill
-          die
-        end
       end
     end
   end
 
-  def post_collision
+  def post_solid
     @pos.teleport(@step[:xorig], @step[:yorig])
 
     if @step[:passxy] 
@@ -240,6 +237,18 @@ class Player < GameObject
     end
 
     @jump_state[:state] = :air if @pos.y > @step[:yorig]
+  end
+
+  def collision other
+    case other.collision_data[:type]
+    when :circle
+      if box_circle?(collision_data, other.collision_data)
+        case other.type
+        when :kill
+          die
+        end
+      end
+    end
   end
 
   def draw

@@ -22,7 +22,7 @@ class Explosion < GameObject
   end
 
   def collision_data
-    r = @sprite.current_image.width/2 
+    r = @sprite.current_image.width / 2 
     return { type: :circle, x: @x + r, y: @y + r, r: r } if @duration > 5 
     return { type: :none } 
   end
@@ -33,7 +33,21 @@ class Explosion < GameObject
   end
 
   def draw
+    color = Gosu::Color.new(0xaa00ff00)
     @sprite.draw(@x, @y, 1)
+  
+    #Draw hitbox
+    #d = collision_data
+    #if d[:type] == :circle
+    #  r = d[:r]
+    #  x = d[:x]
+    #  y = d[:y]
+    #  GameWindow.instance.draw_quad(
+    #    x - r, y - r, color,
+    #    x + r, y - r, color,
+    #    x + r, y + r, color,
+    #    x - r, y + r, color)
+    #end
   end
   
 end

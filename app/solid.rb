@@ -16,7 +16,7 @@ class Solid < GameObject
     @h = h
   end
 
-  def collision_data
+  def solid_data
     { type: :box, x: @x, y: @y, w: @w, h: @h } 
   end
 

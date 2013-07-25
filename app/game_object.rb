@@ -21,15 +21,26 @@ class GameObject
   end
 
 	
-	#COLLISION INTERFACE
+  #COLLISION INTERFACE
   def collision_data
-		{ type: none }
-	end
-	def pre_collision
+    { type: none }
+  end
+  def pre_collision
   end
   def collision(*args)
   end
   def post_collision
+  end
+
+  #SOLID INTERFACE
+  def solid_data
+    { type: none }
+  end
+  def pre_solid
+  end
+  def solid(*args)
+  end
+  def post_solid
   end
 	
 end

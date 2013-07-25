@@ -22,3 +22,4 @@ def circle_circle?(c1, c2)
   sqdist = (c1[:x] - c2[:x]) * (c1[:x] - c2[:x]) + (c1[:y] - c2[:y]) * (c1[:y] - c2[:y]) 
   sqdist < (c1[:r] + c2[:r]) * (c1[:r] + c2[:r])
 end
+
