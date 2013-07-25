@@ -19,15 +19,15 @@ describe Player do
     end
   end
 
-  context "On update" do
+  context "On movement" do
     it "Moves left on left input" do
       p.game_input[:left][:is] = true
-      expect{ p.update }.to change{ p.pos.x }.by(-5)
+      expect{ p.pre_solid; p.post_solid }.to change{ p.pos.x }.by(-5)
     end
 
     it "Moves right on right input" do
       p.game_input[:right][:is] = true
-      expect{ p.update }.to change{ p.pos.x }.by(5)
+      expect{ p.pre_solid; p.post_solid }.to change{ p.pos.x }.by(5)
     end
   end
 
@@ -40,19 +40,19 @@ describe Player do
   context "#Facing" do
     it "should always be facing in the direction of last left/right input" do
       p.game_input[:left][:is] = true #Move player left
-      p.update
+      p.move
       expect(p.facing).to eq(:left)
       
       p.game_input[:up][:is] = true #
-      p.update
+      p.move
       expect(p.facing).to eq(:left)
 
       p.game_input[:right][:is] = true #Move player right
-      p.update
+      p.move
       expect(p.facing).to eq(:right)
 
       p.game_input[:down][:is] = true #
-      p.update
+      p.move
       expect(p.facing).to eq(:right)
     end
   end

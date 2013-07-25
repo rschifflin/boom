@@ -3,13 +3,14 @@ require_relative 'spec_helper'
 describe Sprite do
   let(:spr){ Sprite.new }
   before do
+    testimage = Gosu::Image.new(GameWindow.instance, "images/testimage.png", false)
     anim_hash = {
       :name => :anim1,
       :loop => true,
       :speed => 5,
       :index => 0,
       :paused => false,
-      :images => %w[ a b c d e f g h i j ] 
+      :images => Array.new(10){ testimage }
       } 
     spr.add_anim anim_hash
 
@@ -19,7 +20,7 @@ describe Sprite do
       :speed => 3,
       :index => 3,
       :paused => true,
-      :images => %w[ 1 2 3 4 5 ] 
+      :images => Array.new(5){ testimage }
     }
     spr.add_anim anim_hash
   end

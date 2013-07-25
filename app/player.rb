@@ -66,26 +66,22 @@ class Player < GameObject
       }
     @sprite.add_anim anim_hash
 
-    @type = :player
-    @jump_state = { state: :ground, counter: 0 }
-    @attack_counters = { atk1: 0, atk2: 0, atk3: 0 }
-    @freeze_counter = 0 
-    @dead = false
+    @type = :player 
+    @state = { dead: false, jump: :ground }
+    @counter = { atk1: 0, atk2: 0, atk3: 0, freeze: 0, rising: 0 } 
   end
 
   def update  
     @sprite.update
     @arm.set_arm(get_8dir, @pos.x+32, @pos.y+40)
-    attack if @freeze_counter == 0
+    attack if @counter[:freeze] == 0
+
     update_counters
     @game_input.each_key{ |k| @game_input[k][:was] = @game_input[k][:is] }
   end
 
   def update_counters
-    @freeze_counter -= 1 if @freeze_counter > 0
-    @attack_counters.each_key do |k|
-      @attack_counters[k] -= 1 if @attack_counters[k] > 0
-    end	
+    @counter.each_key { |k| @counter[k] -= 1 if @counter[k] > 0 }
   end
 	
   def get_8dir
@@ -109,16 +105,16 @@ class Player < GameObject
   def attack
     if @game_input[:atk1][:is] == true   && 
        @game_input[:atk1][:was] == false &&
-       @attack_counters[:atk1] == 0
+       @counter[:atk1] == 0
       GameWindow.instance.add_object(Bomb.new(@arm.x_end, @arm.y_end, get_8dir, 30), {visible: true}) 
-      @attack_counters[:atk1] = 45
+      @counter[:atk1] = 45
     end
 
     if @game_input[:atk2][:is] == true   &&
        @game_input[:atk2][:was] == false &&
-       @attack_counters[:atk2] == 0     
+       @counter[:atk2] == 0     
       GameWindow.instance.add_object(Bomb.new(@arm.x_end, @arm.y_end, get_8dir, 45), {visible: true}) 
-      @attack_counters[:atk2] = 45
+      @counter[:atk2] = 45
     end
   end
 
@@ -137,29 +133,28 @@ class Player < GameObject
   def jump
     if @game_input[:jump][:is] == true  && 
        @game_input[:jump][:was] == true && 
-       @jump_state[:state] == :rising
+       @state[:jump] == :rising
       
       @pos.yvel = -10
     end
 
     if @game_input[:jump][:is] == false && 
-       @jump_state[:state] == :rising
-      @jump_state[:state] = :air
+       @state[:jump] == :rising
+      @state[:jump] = :air
     end
 
     if @game_input[:jump][:is] == true   && 
        @game_input[:jump][:was] == false && 
-       @jump_state[:state] == :ground 
+       @state[:jump] == :ground 
 
       @pos.yvel = -10
-      @jump_state[:state] = :rising
-      @jump_state[:counter] = 30
+      @state[:jump] = :rising
+      @counter[:rising] = 30
       @sprite.set_anim(:jump)
     end
 		
-    if @jump_state[:state] == :rising
-      @jump_state[:counter] -= 1
-      @jump_state[:state] = :air if @jump_state[:counter] == 0
+    if @state[:jump] == :rising
+      @state[:jump] = :air if @counter[:rising] == 0
     end		
   end
 
@@ -167,7 +162,7 @@ class Player < GameObject
     GameWindow.instance.change_object_by_id(@id, {input: false, solid: false, collision: false} )
     @sprite.set_anim :death
     @sprite.lock
-    @dead = true
+    @state[:dead] = true
   end
 
   def collision_data
@@ -180,7 +175,7 @@ class Player < GameObject
   end
 
   def pre_solid 
-    if @freeze_counter == 0
+    if @counter[:freeze] == 0
       @pos.xvel = 0
       @pos.yvel += 0.5 if @pos.yvel <= 10
       @pos.yvel += 0.1 unless @pos.yvel >= 40
@@ -225,18 +220,18 @@ class Player < GameObject
       @pos.move
     elsif @step[:passx]
       @pos.movex
-      @jump_state[:state] = :ground if @step[:ynew] > @step[:yorig]
+      @state[:jump] = :ground if @step[:ynew] > @step[:yorig]
     elsif @step[:passy]
       @pos.movey
     end
    
-    if @jump_state[:state] == :ground && @step[:xorig] == @step[:xnew] 
+    if @state[:jump] == :ground && @step[:xorig] == @step[:xnew] 
       @sprite.set_anim(:stand)
-    elsif @jump_state[:state] == :ground && @sprite.current_anim[:name] != :walk
+    elsif @state[:jump] == :ground && @sprite.current_anim[:name] != :walk
       @sprite.set_anim(:walk)
     end
 
-    @jump_state[:state] = :air if @pos.y > @step[:yorig]
+    @state[:jump] = :air if @pos.y > @step[:yorig]
   end
 
   def collision other
@@ -253,7 +248,7 @@ class Player < GameObject
 
   def draw
     @sprite.draw(@pos.x, @pos.y, 1, @facing==:left)
-    @arm.draw unless @dead	
+    @arm.draw unless @state[:dead]	
     #Draw dot for x,y pos
     #GameWindow.instance.draw_quad(
     #  @pos.x,   @pos.y,   Gosu::Color::GREEN,

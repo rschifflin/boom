@@ -5,7 +5,6 @@ describe Bomb do
  
   it "Flies at a constant velocity" do
     5.times do 
-      b.pos.step
       b.pos.move
     end
     expect(b.pos.x).to eq(5 * b.pos.xvel)
