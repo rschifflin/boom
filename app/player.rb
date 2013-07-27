@@ -3,6 +3,7 @@ require_relative 'game_object'
 require_relative 'window_player_input_adapter'
 require_relative 'lib/collision.rb'
 require_relative 'arm'
+
 class Player < GameObject
   attr_reader :pos, :binds, :game_input, :facing, :jump_state
   attr_accessor :input_adapter
@@ -159,10 +160,11 @@ class Player < GameObject
   end
 
   def die
-    GameWindow.instance.change_object_by_id(@id, {input: false, solid: false, collision: false} )
+    GameWindow.instance.change_object_by_id(@id, {input: false, collision: false} )
     @sprite.set_anim :death
     @sprite.lock
     @state[:dead] = true
+    @game_input.each_key { |k| @game_input[k] = { is: false, was: false } }
   end
 
   def collision_data
@@ -170,8 +172,13 @@ class Player < GameObject
   end
 
   def solid_data
-      return { type: :box, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } if @facing == :left
+    if @facing == :left
+      return { type: :none, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } if @state[:dead]
+      return { type: :box, x: @pos.x + 12, y: @pos.y, w: 32, h: 96 } 
+    else
+      return { type: :none, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 } if @state[:dead]
       return { type: :box, x: @pos.x + 20, y: @pos.y, w: 32, h: 96 }
+    end
   end
 
   def pre_solid 
@@ -258,11 +265,11 @@ class Player < GameObject
     # ) 
    
     #Draw inputs
-    #spacing = 0
-    #@game_input.each do |k, v| 
-    #  Gosu::Image.from_text(GameWindow.instance, "#{k}: #{@game_input[k][:is]}, #{@game_input[k][:was]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(540+(@id*200),40+spacing,1)
-    #  spacing += 20
-    #end
+    spacing = 0
+    @game_input.each do |k, v| 
+      Gosu::Image.from_text(GameWindow.instance, "#{k}: #{@game_input[k][:is]}, #{@game_input[k][:was]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(540+(@id*200),40+spacing,1)
+      spacing += 20
+    end
 		
     ##Draw the hitbox
     #hitbox_color = Gosu::Color.argb(0x6600ff00)

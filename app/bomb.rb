@@ -1,8 +1,8 @@
-require_relative 'game_object'
-require_relative 'position'
-require_relative 'sprite'
-require_relative 'game_window'
-require_relative 'explosion'
+require './game_object'
+require './position'
+require './sprite'
+require './game_window'
+require './explosion'
 
 class Bomb < GameObject
   attr_reader :pos, :fuse

@@ -1,5 +1,5 @@
-require_relative 'game_object.rb'
-require_relative 'game_window.rb'
+require './game_object.rb'
+require './game_window.rb'
 
 class Arm < GameObject
 

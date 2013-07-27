@@ -31,6 +31,14 @@ class GameWindow < Gosu::Window
 	
   def init_input
    @game_input = {
+      sysleft: {is: false, was: false},
+      sysright: {is: false, was: false},
+      sysup: {is: false, was: false},
+      sysdown: {is: false, was: false},
+      sysyes: {is: false, was: false},
+      sysno: {is: false, was: false},
+      syscancel: {is: false, was: false},
+
       p1left: {is: false, was: false},
       p1right: {is: false, was: false},
       p1up: {is: false, was: false},
