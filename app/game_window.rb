@@ -105,6 +105,7 @@ class GameWindow < Gosu::Window
     collision   #All hitbox collision checks
     @all_objects.each_value { |val| val[:object].update } 
     unload_queues
+    sleep 1 if button_down? Gosu::KbF
   end
 
   def button_down id
@@ -147,6 +148,8 @@ class GameWindow < Gosu::Window
     when Gosu::Gp1Right then game_id = :p2right
     when Gosu::Gp1Up then game_id = :p2up
     when Gosu::Gp1Down then game_id = :p2down
+
+    ##DEBUG
     when Gosu::KbR then reset 
     when Gosu::KbEscape then close
     when Gosu::Gp0Button8 then reset

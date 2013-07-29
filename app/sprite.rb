@@ -1,5 +1,5 @@
 require 'gosu'
-require_relative 'game_window'
+require "#{File.dirname(__FILE__)}/game_window"
 
 class Sprite 
     

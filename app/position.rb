@@ -1,6 +1,5 @@
 class Position
-  attr_reader :x, :y
-  attr_accessor :xvel, :yvel
+  attr_accessor :x, :y, :xvel, :yvel
 
   def initialize(xpos=0, ypos=0)
     @x = xpos

@@ -1,8 +1,8 @@
-require_relative 'position'
-require_relative 'game_object'
-require_relative 'window_player_input_adapter'
-require_relative 'lib/collision.rb'
-require_relative 'arm'
+require "#{File.dirname(__FILE__)}/position"
+require "#{File.dirname(__FILE__)}/game_object"
+require "#{File.dirname(__FILE__)}/window_player_input_adapter"
+require "#{File.dirname(__FILE__)}/lib/collision.rb"
+require "#{File.dirname(__FILE__)}/arm"
 
 class Player < GameObject
   attr_reader :pos, :binds, :game_input, :facing, :jump_state
@@ -211,27 +211,35 @@ class Player < GameObject
         case other.type
         when :player, :solid
           @step[:passxy] = false 
-          @pos.teleport(@step[:xnew], @step[:yorig]) 
-          @step[:passx] = false if box_box?(solid_data, other.solid_data)
+
           @pos.teleport(@step[:xorig], @step[:ynew])
-          @step[:passy] = false if box_box?(solid_data, other.solid_data)
+          if box_box?(solid_data, other.solid_data)
+            @step[:passy] = false 
+            if solid_data[:y] < other.solid_data[:y]
+              @step[:ynew] = other.solid_data[:y] - solid_data[:h] - (solid_data[:y] - @pos.y) 
+            else
+              @step[:ynew] = other.solid_data[:y] + other.solid_data[:h] + (solid_data[:y] - @pos.y)
+            end
+          end
+
+          @pos.teleport(@step[:xnew], @step[:ynew]) 
+          if box_box?(solid_data, other.solid_data)
+            @step[:passx] = false 
+            if solid_data[:x] < other.solid_data[:x]
+              @step[:xnew] = other.solid_data[:x] - solid_data[:w] - (solid_data[:x] - @pos.x) - 1
+            else
+              @step[:xnew] = other.solid_data[:x] + other.solid_data[:w] - (solid_data[:x] - @pos.x) + 1
+            end
+          end
         end 
       end
     end
   end
 
-  def post_solid
-    @pos.teleport(@step[:xorig], @step[:yorig])
+  def post_solid 
+    @pos.teleport(@step[:xnew], @step[:ynew]) 
 
-    if @step[:passxy] 
-      @pos.move
-    elsif @step[:passx]
-      @pos.movex
-      @state[:jump] = :ground if @step[:ynew] > @step[:yorig]
-    elsif @step[:passy]
-      @pos.movey
-    end
-   
+    @state[:jump] = :ground if @pos.y == @step[:yorig] 
     if @state[:jump] == :ground && @step[:xorig] == @step[:xnew] 
       @sprite.set_anim(:stand)
     elsif @state[:jump] == :ground && @sprite.current_anim[:name] != :walk
@@ -265,11 +273,15 @@ class Player < GameObject
     # ) 
    
     #Draw inputs
-    spacing = 0
-    @game_input.each do |k, v| 
-      Gosu::Image.from_text(GameWindow.instance, "#{k}: #{@game_input[k][:is]}, #{@game_input[k][:was]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(540+(@id*200),40+spacing,1)
-      spacing += 20
-    end
+    #spacing = 0
+    #@game_input.each do |k, v| 
+    #  Gosu::Image.from_text(GameWindow.instance, "#{k}: #{@game_input[k][:is]}, #{@game_input[k][:was]}", Gosu::default_font_name, 20, 10, 1000, :left).draw(540+(@id*200),40+spacing,1)
+    #  spacing += 20
+    #end
+
+    #Draw position
+    Gosu::Image.from_text(GameWindow.instance, "(#{@pos.x}, #{@pos.y})", Gosu::default_font_name, 20, 10, 1000, :left).draw(540+(@id*200),40,1)
+
 		
     ##Draw the hitbox
     #hitbox_color = Gosu::Color.argb(0x6600ff00)

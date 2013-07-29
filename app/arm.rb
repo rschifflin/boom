@@ -1,5 +1,5 @@
-require './game_object.rb'
-require './game_window.rb'
+require "#{File.dirname(__FILE__)}/game_object" 
+require "#{File.dirname(__FILE__)}/game_window"
 
 class Arm < GameObject
 

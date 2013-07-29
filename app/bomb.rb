@@ -1,8 +1,8 @@
-require './game_object'
-require './position'
-require './sprite'
-require './game_window'
-require './explosion'
+require "#{File.dirname(__FILE__)}/game_object"
+require "#{File.dirname(__FILE__)}/position"
+require "#{File.dirname(__FILE__)}/sprite"
+require "#{File.dirname(__FILE__)}/game_window"
+require "#{File.dirname(__FILE__)}/explosion"
 
 class Bomb < GameObject
   attr_reader :pos, :fuse

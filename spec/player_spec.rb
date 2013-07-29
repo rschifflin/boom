@@ -15,7 +15,7 @@ describe Player do
   context "On recognized input" do
     it "Properly translates HW keypresses into player keypresses" do
       w.button_down(Gosu::Gp0Left) 
-      expect(p.game_input[:left][:is]).to be_true
+      expect(p.game_input[:left][:is]).to be_false
     end
   end
 
