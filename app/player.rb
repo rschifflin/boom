@@ -196,9 +196,6 @@ class Player < GameObject
       xnew:  @pos.x + @pos.xvel,
       yorig: @pos.y,
       ynew:  @pos.y + @pos.yvel,
-      passx: true,
-      passy: true,
-      passxy: true
       }
   end
 
@@ -210,12 +207,10 @@ class Player < GameObject
       if box_box?(solid_data, other.solid_data) 
         case other.type
         when :player, :solid
-          @step[:passxy] = false 
-
+              
           @pos.teleport(@step[:xorig], @step[:ynew])
           if box_box?(solid_data, other.solid_data)
-            @step[:passy] = false 
-            if solid_data[:y] < other.solid_data[:y]
+            if solid_data[:y] <= other.solid_data[:y]
               @step[:ynew] = other.solid_data[:y] - solid_data[:h] - (solid_data[:y] - @pos.y) 
             else
               @step[:ynew] = other.solid_data[:y] + other.solid_data[:h] + (solid_data[:y] - @pos.y)
@@ -224,8 +219,18 @@ class Player < GameObject
 
           @pos.teleport(@step[:xnew], @step[:ynew]) 
           if box_box?(solid_data, other.solid_data)
-            @step[:passx] = false 
-            if solid_data[:x] < other.solid_data[:x]
+            if solid_data[:x] <= other.solid_data[:x]
+              @step[:xnew] = other.solid_data[:x] - solid_data[:w] - (solid_data[:x] - @pos.x) - 1
+            else
+              @step[:xnew] = other.solid_data[:x] + other.solid_data[:w] - (solid_data[:x] - @pos.x) + 1
+            end
+          end
+
+          #Collision persists; likely 'stuck' in geometry
+          #Unstuck our x-axis
+          @pos.teleport(@step[:xorig], @step[:yorig]) 
+          if box_box?(solid_data, other.solid_data)
+            if solid_data[:x] <= other.solid_data[:x]
               @step[:xnew] = other.solid_data[:x] - solid_data[:w] - (solid_data[:x] - @pos.x) - 1
             else
               @step[:xnew] = other.solid_data[:x] + other.solid_data[:w] - (solid_data[:x] - @pos.x) + 1
